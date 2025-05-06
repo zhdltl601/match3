@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11b10882b5285494c99afed604984eba, type: 3}
+  m_Name: AudioEmitter
+  m_EditorClassIdentifier: 
+  preCreateAmount: 0
+  prefab: {fileID: 4489817376276354173, guid: a9413c1e7a3177a498a555fbfe06262c, type: 3}
+  hash: 49622
+  mono: {fileID: 9034861238129489914, guid: a9413c1e7a3177a498a555fbfe06262c, type: 3}

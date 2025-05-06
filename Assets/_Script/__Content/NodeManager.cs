@@ -9,20 +9,22 @@ public class NodeManager : MonoBehaviour
 {
     private const int k_y = 7;
 
-    private readonly Node[][] arr = new Node[k_y][];      //jagged
+    private readonly Node[][] arr = new Node[k_y][];    //jagged
     private Node[] allArr;                              //one dimension
     [SerializeField] private Node nodePrefab;
+    [SerializeField] private Transform spawnTransform;
     private void OnEnable()
     {
+        const int k_row = 15;
         int[] initArray = new int[k_y]
         {
-            15,
-            15,
-            15,
-            15,
-            15,
-            15,
-            15
+            k_row,
+            k_row,
+            k_row,
+            k_row,
+            k_row,
+            k_row,
+            k_row
         };
         Task _ = Initialization(initArray);
     }
@@ -30,6 +32,7 @@ public class NodeManager : MonoBehaviour
     {
         KillAllNode();
     }
+
     public async Task Initialization(IEnumerable<int> initArray)
     {
         Debug.Assert(initArray != null, "initArry is null");
@@ -48,7 +51,7 @@ public class NodeManager : MonoBehaviour
 
         Debug.Assert(arrayLength != 0, "length is zero");
 
-        AsyncInstantiateOperation<Node> task = InstantiateAsync(nodePrefab, arrayLength);
+        AsyncInstantiateOperation<Node> task = InstantiateAsync(nodePrefab, arrayLength, transform.position, Quaternion.identity);
 
         await task;
 
@@ -58,7 +61,7 @@ public class NodeManager : MonoBehaviour
         Node[] nodes = task.Result;
         allArr = nodes;
 
-        Debug.Assert(nodes.Length == arrayLength, "what?");
+        Debug.Assert(nodes.Length == arrayLength, "array length doesn't match");
 
         for (int i = 0; i < nodes.Length; i++)
         {
@@ -68,18 +71,23 @@ public class NodeManager : MonoBehaviour
                 y = 0;
             }
 
+            await Awaitable.WaitForSecondsAsync(0.01f);
+
             Node item = nodes[i];
 
-            Vector3 position = new Vector3(y, -x) + transform.position;
+            Vector3 spawnPosition = this.spawnTransform.position;
+            Vector3 position = new Vector3(y, -x) + spawnPosition;
             Quaternion rotation = Quaternion.identity;
             item.transform.SetPositionAndRotation(position, rotation);
 
             arr[x][y] = item;
 
             item.Initialization();
+
             const int min = (int)EColor.None + 1;
             const int max = (int)EColor.End;
-            item.SetColor((EColor)UnityEngine.Random.Range(min, max));
+            EColor color = (EColor)UnityEngine.Random.Range(min, max);
+            item.SetColor(color);
 
             y++;
         }
@@ -104,7 +112,7 @@ public class NodeManager : MonoBehaviour
     private void OnDestroy()
     {
         //todo : early exit when quitting
-        if(allArr != null)
+        if (allArr != null)
         {
             KillAllNode();
         }

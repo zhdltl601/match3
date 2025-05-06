@@ -1,0 +1,16 @@
+{
+    "name": "OJYTween",
+    "rootNamespace": "OJYTween",
+    "references": [
+        "GUID:ef38f1f0b6865cf4386ab25d395432f8"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

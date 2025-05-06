@@ -1,0 +1,14 @@
+{
+    "name": "Custom.LowLevel.LoopSystem",
+    "rootNamespace": "Custom.LowLevel.LoopSystem",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -21,7 +21,7 @@ public class Player : MonoBehaviour
         Debug.DrawRay(worldPoint, Vector3.right * radius, Color.magenta, 0.1f);
         if (castCollider != null)
         {
-            bool nodeFlag = gameObject.TryGetComponent(out Node node);
+            bool nodeFlag = castCollider.TryGetComponent(out Node node);
             Debug.Assert(nodeFlag, "node not found");
 
             if (nodeFlag)

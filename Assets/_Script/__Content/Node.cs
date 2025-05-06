@@ -1,3 +1,4 @@
+using Custom.Audio;
 using DG.Tweening;
 using System;
 using UnityEngine;
@@ -8,20 +9,23 @@ public class Node : MonoBehaviour
     public EColor ColorType { get; private set; }
     public int X { get; set; }
     public int Y { get; set; }
-    private new SpriteRenderer renderer;
+    [Header("Settings")]
+    [SerializeField] private BaseAudioSO aud_init;
     [SerializeField] private Rigidbody2D rigid;
 
+    private new SpriteRenderer renderer;
     private Tween currentTween;
 
     private void Awake()
     {
         renderer = GetComponent<SpriteRenderer>();
-        Initialization();
+        rigid.gravityScale = 0;
+        //Initialization();
     }
     public void Initialization()
     {
+        AudioManager.PlayWithInit(aud_init, true);
         currentTween = InitAnimation();
-        rigid.gravityScale = 0;
     }
     public void SetColor(EColor color)
     {
@@ -39,7 +43,7 @@ public class Node : MonoBehaviour
             currentTween.Kill();
             currentTween = null;
         }
-        Tween result = transform.DOPunchScale(Vector3.one, 0.2f, 15, 0.5f)
+        Tween result = transform.DOPunchScale(Vector3.one, 0.2f, 20, 0.25f)
             .SetEase(Ease.Linear)
             .SetLink(gameObject, LinkBehaviour.KillOnDestroy);
         return result;
