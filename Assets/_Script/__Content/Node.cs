@@ -7,11 +7,15 @@ using Random = UnityEngine.Random;
 public class Node : MonoBehaviour
 {
     public EColor ColorType { get; private set; }
-    public int X { get; set; }
-    public int Y { get; set; }
+    [field: SerializeField] public int X { get; private set; }
+    [field: SerializeField] public int Y { get; private set; }
+    public bool IsSelected { get; private set; }
+
     [Header("Settings")]
     [SerializeField] private BaseAudioSO aud_init;
+    //refs
     [SerializeField] private Rigidbody2D rigid;
+    [SerializeField] private GameObject selectOutlineGO;
 
     private new SpriteRenderer renderer;
     private Tween currentTween;
@@ -20,12 +24,38 @@ public class Node : MonoBehaviour
     {
         renderer = GetComponent<SpriteRenderer>();
         rigid.gravityScale = 0;
-        //Initialization();
+    }
+    public void NodeActive(bool active)
+    {
+        IsSelected = active;
+        selectOutlineGO.SetActive(active);
     }
     public void Initialization()
     {
         AudioManager.PlayWithInit(aud_init, true);
         currentTween = InitAnimation();
+    }
+    //public void MovePosition(EDirection eDirection)
+    //{
+    //    Vector2 vector = eDirection.GetVector();
+    //    int x = (int)vector.x;
+    //    int y = (int)vector.y;
+    //    MovePosition(x, y);
+    //}
+    public void MovePosition(int xDir, int yDir)
+    {
+        int resultX = X + xDir;
+        int resultY = Y + yDir;
+        Debug.Assert(NodeManager.IsNodePositionValid(resultX, resultY), "node is not valid");
+
+        Vector3 result = new Vector3(xDir, yDir) + transform.position;
+        SetPosition(resultX, resultY, result);
+    }
+    public void SetPosition(int x, int y, Vector3 position)
+    {
+        transform.position = position;
+        X = x;
+        Y = y;
     }
     public void SetColor(EColor color)
     {

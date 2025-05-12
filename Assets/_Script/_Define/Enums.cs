@@ -8,3 +8,11 @@ public enum EColor
     White,
     End
 }
+public enum EDirection
+{
+    Origin,
+    Left,
+    Right,
+    Up,
+    Down
+}

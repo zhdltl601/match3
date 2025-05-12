@@ -4,18 +4,35 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
-
-public class NodeManager : MonoBehaviour
+using Random = UnityEngine.Random;
+public class NodeManager : MonoSingleton<NodeManager>
 {
     private const int k_y = 7;
 
-    private readonly Node[][] arr = new Node[k_y][];    //jagged
-    private Node[] allArr;                              //one dimension
+    private static readonly Node[][] nodeArray = new Node[k_y][];   //jagged        // note : y, x
+    private Node[] allNodeArr;                                      //one dimension // note : do i need this?
+
+    [Header("Settings")]
     [SerializeField] private Node nodePrefab;
     [SerializeField] private Transform spawnTransform;
+    #region Getters
+    public Vector3 GetNodePivot => spawnTransform.position;
+    public IReadOnlyList<IReadOnlyList<Node>> GetAllNode => nodeArray;
+    public static Node GetNodeFromArray(int x, int y)
+    {
+        Node result;
+        bool flagValid = IsNodePositionValid(x, y);
+        result = flagValid ?
+            nodeArray[y][x] :
+            null;
+
+        return result;
+    }
+    #endregion
+
     private void OnEnable()
     {
-        const int k_row = 15;
+        const int k_row = 3;//15;
         int[] initArray = new int[k_y]
         {
             k_row,
@@ -32,7 +49,22 @@ public class NodeManager : MonoBehaviour
     {
         KillAllNode();
     }
-
+    public static bool IsNodePositionValid(Node node)
+    {
+        return IsNodePositionValid(node.X, node.Y);
+    }
+    public static bool IsNodePositionValid(int x, int y)
+    {
+        bool result = y >= 0 &&
+            y < nodeArray.Length &&
+            x >= 0 &&
+            x < nodeArray[y].Length;
+        return result;
+    }
+    public static void SetNode(int x, int y, Node node)
+    {
+        nodeArray[y][x] = node;
+    }
     public async Task Initialization(IEnumerable<int> initArray)
     {
         Debug.Assert(initArray != null, "initArry is null");
@@ -43,7 +75,7 @@ public class NodeManager : MonoBehaviour
         while (enumerator.MoveNext())
         {
             int item = enumerator.Current;
-            arr[arrayIndex] = new Node[item];
+            nodeArray[arrayIndex] = new Node[item];
             arrayLength += item;
 
             arrayIndex++;
@@ -59,60 +91,59 @@ public class NodeManager : MonoBehaviour
         int y = 0;
 
         Node[] nodes = task.Result;
-        allArr = nodes;
+        allNodeArr = nodes;
 
         Debug.Assert(nodes.Length == arrayLength, "array length doesn't match");
 
-        for (int i = 0; i < nodes.Length; i++)
+        Vector3 spawnPosition = GetNodePivot;
+        for (int i = 0; i < arrayLength; i++)
         {
-            if (y >= arr[x].Length)
+            if (x >= nodeArray[y].Length)
             {
-                x++;
-                y = 0;
+                y++;
+                x = 0;
             }
 
-            await Awaitable.WaitForSecondsAsync(0.01f);
+            await Awaitable.WaitForSecondsAsync(0.013f);
 
             Node item = nodes[i];
+            item.name = i.ToString(); // todo : remove
 
-            Vector3 spawnPosition = this.spawnTransform.position;
-            Vector3 position = new Vector3(y, -x) + spawnPosition;
-            Quaternion rotation = Quaternion.identity;
-            item.transform.SetPositionAndRotation(position, rotation);
-
-            arr[x][y] = item;
-
+            Vector3 position = new Vector3(x, y);
+            item.SetPosition(x, y, position + spawnPosition);
             item.Initialization();
 
-            const int min = (int)EColor.None + 1;
-            const int max = (int)EColor.End;
-            EColor color = (EColor)UnityEngine.Random.Range(min, max);
+            nodeArray[y][x] = item;
+
+            const int k_min = (int)EColor.None + 1;
+            const int k_max = (int)EColor.End;
+            EColor color = (EColor)Random.Range(k_min, k_max);
             item.SetColor(color);
 
-            y++;
+            x++;
         }
     }
-    private void Update()
+    //todo : incomplete
+    public void KillNode(int x, int y)
     {
-        if (Input.GetKeyDown(KeyCode.K))
-        {
-            KillAllNode();
-        }
+        Node a = nodeArray[y][x];
+        a.gameObject.SetActive(false);
     }
     private void KillAllNode()
     {
-        for (int i = 0; i < allArr.Length; i++)
+        for (int i = 0; i < allNodeArr.Length; i++)
         {
-            ref Node currentNode = ref allArr[i];
+            ref Node currentNode = ref allNodeArr[i];
             if (currentNode == null) continue;
             Destroy(currentNode.gameObject);
             currentNode = null;
         }
     }
-    private void OnDestroy()
+    protected override void OnDestroy()
     {
+        base.OnDestroy();
         //todo : early exit when quitting
-        if (allArr != null)
+        if (allNodeArr != null)
         {
             KillAllNode();
         }
